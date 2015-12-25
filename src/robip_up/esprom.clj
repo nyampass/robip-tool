@@ -110,15 +110,26 @@
 (defn bytes-append [a b]
   (byte-array (concat (seq a) (seq b))))
 
-(defn print-data [label & data]
+(defn print-data [label data]
   (doseq [x data]
-    (println (apply str (map #(format "%x  " %) (seq (serial/to-bytes x)))))))
+    (println (apply str (map #(format "%x " %) (seq (serial/to-bytes x))))))
+  (println))
 
 (defn- write [{:keys [port] :as esp} packet]
-  (serial/write port [0xc0] packet [0xc0]))
+  (let [buffer (apply concat
+                      [[0xc0]
+                       (map (fn [x]
+                              (condp = (byte->unsigned x)
+                                0xdb [0xdb 0xdd]
+                                0xc0 [0xdb 0xdc]
+                                [x]))
+                                packet)
+                       [0xc0]])]
+    #(print-data :write buffer)
+    (apply serial/write (cons port buffer))))
 
 (defn- command [esp & [op data chk]]
-  (println "command" op (count data) chk (count data))
+  (println "command" op (count data) chk)
   (if op
     (let [packet (concat (pack "bbsi" 0, op, (count data), (or chk 0))
                          data)]
