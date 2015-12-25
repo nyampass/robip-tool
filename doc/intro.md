@@ -1,3 +1,3 @@
-# Introduction to robip-up
+# Introduction to robip-tool
 
 TODO: write [great documentation](http://jacobian.org/writing/what-to-write/)

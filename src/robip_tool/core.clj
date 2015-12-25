@@ -1,5 +1,5 @@
-(ns robip-up.core
-  (require [robip-up.esprom :as esprom]
+(ns robip-tool.core
+  (require [robip-tool.esprom :as esprom]
            [clojure.tools.cli :refer [parse-opts]]
            [clojure.string :refer [join]])
   (gen-class))
@@ -20,7 +20,7 @@
 (defn usage [options-summary]
   (->> ["Write a binary blob to flash esp8266"
         ""
-        "Usage: java -m robip-up.core [options] \"Address and binary file to write where separeted by space\""
+        "Usage: java -m robip-tool.core [options] \"Address and binary file to write where separeted by space\""
         ""
         "Options:"
         options-summary]
