@@ -11,7 +11,7 @@
 
 (defn exit [status msg]
   (println msg)
-  #(System/exit status))
+  (System/exit status))
 
 (defn error-msg [errors]
   (str "The following errors occurred while parsing your command:\n\n"
