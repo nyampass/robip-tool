@@ -1,8 +1,8 @@
 (ns robip-tool.core
-  (require [robip-tool.esprom :as esprom]
+  (:require [robip-tool.esprom :as esprom]
            [clojure.tools.cli :refer [parse-opts]]
            [clojure.string :refer [join]])
-  (gen-class))
+  (:gen-class))
 
 (def cli-options
   [["-p" "--port PORT" "Serial port device"

@@ -1,4 +1,4 @@
-(defproject robip-tool "0.8"
+(defproject robip-tool "0.8-SNAPSHOT"
   :description "FIXME: write description"
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
@@ -8,5 +8,6 @@
                  [clj-serial "2.0.4-SNAPSHOT"]
                  [bytebuffer "0.2.0"]
                  [org.clojure/tools.cli "0.3.3"]]
+  :aot :all
   :main robip-tool.core
   :repl-options {:init-ns robip-tool.core})
