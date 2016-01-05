@@ -30,8 +30,11 @@
   (let [{:keys [options arguments errors summary]} (parse-opts args cli-options)]
     (cond
       (:help options) (exit 0 (usage summary))
+
       (or (not= (mod (count arguments) 2) 0)
-          (= (count arguments) 0)) (exit 1 (usage summary))
+          (= (count arguments) 0))
+      (exit 1 (usage summary))
+
       errors (exit 1 (error-msg errors)))
     (let [esp (esprom/esprom (:port options))]
       (Thread/sleep 0.2)
