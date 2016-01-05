@@ -36,9 +36,17 @@
       (exit 1 (usage summary))
 
       errors (exit 1 (error-msg errors)))
-    (let [esp (esprom/esprom (:port options))]
-      (Thread/sleep 0.2)
-      (esprom/connect esp)
-      (esprom/write-flash esp
-                          (map (fn [[addr filename]]
-                                 [(Integer. addr) filename]) (partition 2 arguments))))))
+
+    (try
+      (let [esp (esprom/esprom (:port options))]
+        (Thread/sleep 0.2)
+        (esprom/connect esp)
+        (esprom/write-flash esp
+                            (map (fn [[addr filename]]
+                                   [(Integer. addr) filename]) (partition 2 arguments)))
+        (System/exit 0))
+      (catch Exception e
+        (binding [*out* *err*]
+          (println (.getMessage e))
+          (.printStackTrace e))
+        (System/exit 1)))))
