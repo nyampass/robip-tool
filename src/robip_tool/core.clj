@@ -5,8 +5,8 @@
   (:gen-class))
 
 (def cli-options
-  [["-p" "--port PORT" "Serial port device"
-    :default "/dev/ttyUSB0"]
+  [["-p" "--port PORT" "Serial port device"]
+   ["-d" "--default-port" "Use default serial port"]
    ["-h" "--help"]])
 
 (defn exit [status msg]
@@ -38,7 +38,10 @@
       errors (exit 1 (error-msg errors)))
 
     (try
-      (let [esp (esprom/esprom (:port options))]
+      (let [port (or (:port options)
+                     (when (:default-port options)
+                       (esprom/usbserial-port)))
+            esp (esprom/esprom port)]
         (Thread/sleep 0.2)
         (esprom/connect esp)
         (esprom/write-flash esp
