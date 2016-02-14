@@ -248,6 +248,10 @@
         (flash-finish-command esp false)
         (println "Done!")))))
 
+(defn ports []
+  (map #(.getName %)
+        (serial/port-identifiers)))
+
 (defn usbserial-port []
   (some #(let [port (.getName %)]
            (and (.contains port "tty.usbserial-")

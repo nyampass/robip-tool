@@ -7,7 +7,8 @@
                  [org.clojure/core.async "0.2.374"]
                  [clj-serial "2.0.4-SNAPSHOT"]
                  [bytebuffer "0.2.0"]
-                 [org.clojure/tools.cli "0.3.3"]]
+                 [org.clojure/tools.cli "0.3.3"]
+                 [clj-http "2.0.1"]]
   :aot :all
   :main robip-tool.core
   :repl-options {:init-ns robip-tool.core})
