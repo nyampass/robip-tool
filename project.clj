@@ -8,7 +8,18 @@
                  [clj-serial "2.0.4-SNAPSHOT"]
                  [bytebuffer "0.2.0"]
                  [org.clojure/tools.cli "0.3.3"]
+                 [org.clojure/data.json "0.2.6"]
+                 [me.raynes/fs "1.4.6"]
                  [clj-http "2.0.1"]]
   :aot :all
-  :main robip-tool.core
+  :main robip-tool.gui
   :repl-options {:init-ns robip-tool.core})
+
+
+
+
+
+
+
+
+

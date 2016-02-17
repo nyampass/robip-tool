@@ -1,13 +1,15 @@
 (ns robip-tool.gui
   (:require [robip-tool.esprom :as esprom]
-            [robip-tool.api :as api])
+            [robip-tool.api :as api]
+            [robip-tool.config :as config])
   (:import [javax.swing JFrame JPanel JTextField JButton JLabel JList JScrollPane
             GroupLayout GroupLayout$Alignment JTextArea JProgressBar JDialog
             JOptionPane BorderFactory
             SwingWorker SwingUtilities]
            [java.awt BorderLayout]
            [java.awt.event ActionListener]
-           [java.beans PropertyChangeListener]))
+           [java.beans PropertyChangeListener])
+  (:gen-class))
 
 (defn frame []
   (let [frame (JFrame. "Robip tool")]
@@ -58,8 +60,8 @@
     layout))
 
 (defn message [frame text]
+  (prn :messsage text)
   (JOptionPane/showMessageDialog frame text))
-
 
 (defn swing-invoke [run]
   (javax.swing.SwingUtilities/invokeLater
@@ -69,14 +71,21 @@
      (catch Throwable e
        (prn :error e)))))
  
-(defn write! [id port publish]
-  (publish 0 "サーバからバイナリファイルの取得中...")
-  (let [esp (esprom/esprom port)
-        file (api/fetch-binary id)]
-    (publish 10 "書き込み中...")
-    (Thread/sleep 0.2)
-    (esprom/connect esp)
-    (esprom/write-flash esp [[0 (.getAbsolutePath file)]])))
+(defn write! [id port frame publish]
+  (prn :write! :id id :port port)
+  (try
+    (publish 0 "サーバからバイナリファイルの取得中...")
+    (let [esp (esprom/esprom port)
+          file (api/fetch-binary id)]
+      (publish 10 "書き込み中...")
+      (Thread/sleep 0.2)
+      (esprom/connect esp)
+      (esprom/write-flash esp [[0 (.getAbsolutePath file)]])
+      (esprom/close esp)
+      (message frame "書き込みに成功しました!"))
+    (catch Throwable e
+      (prn :write! :error e)
+      (message frame "書き込みに失敗しました"))))
 
 (defn show-progress-dialog [run]
   (let [area (JTextArea. "")
@@ -99,6 +108,7 @@
     (let [publish-fn (fn [progress-val text]
                        (swing-invoke
                         #(do
+                           (prn :progress progress-val text)
                            (.setValue progress-bar progress-val)
                            (.setText area text))))
           worker (proxy [SwingWorker] []
@@ -110,38 +120,49 @@
     (.setVisible dialog true)))
 
 (defn click-write-button [frame id port]
-  (prn :clicked)
   (if-not (seq id)
     (message frame "Robip IDを入力してください")
     (if-not (seq port)
       (message frame "ポートを選択してください")
-      (show-progress-dialog (partial write! id port)))))
+      (do
+        (config/write! {:robip-id id})
+        (show-progress-dialog (partial write! id port frame))))))
 
-(defn parts [frame]
-  (let [id-field (JTextField. "test7test7" 20)
-        port-field (JList. (into-array String (esprom/ports)))
-        write-button (JButton. "書き込む")]
-    (.addActionListener write-button
+(defn button-with-action [text action]
+  (let [button (JButton. text)]
+    (.addActionListener button
                         (reify ActionListener
                           (actionPerformed [_ e]
-                            (prn :click)
-                            (do (click-write-button frame
-                                                    (.getText id-field)
-                                                    (.getSelectedValue port-field))))))
+                            (do (action)))))
+    button))
+
+(defn parts [frame]
+  (let [id-field (JTextField. (or (get (config/read-config) "robip-id") "") 20)
+        ports #(into-array String (esprom/ports))
+        port-field (JList. (ports))
+        rescan-button (button-with-action
+                       "⟳"
+                       #(.setListData port-field (ports)))
+        write-button (button-with-action
+                      "書き込む"
+                      #(click-write-button frame
+                                           (.getText id-field)
+                                           (.getSelectedValue port-field)))]
     {:id-label (label "Robip ID:")
      :id-field id-field
      :port-label (label "ポート:")
      :port-field (JScrollPane. port-field)
+     :rescan-button rescan-button
      :write-button write-button}))
 
 (defn start []
   (let [frame (frame)
         {:keys [id-label id-field
                 port-label port-field
-                write-button]} (parts frame)]
+                rescan-button write-button]} (parts frame)]
     (group-layout frame
-                  [[id-label port-label] [id-field port-field] [write-button]]
-                  [[id-label id-field write-button] [port-label port-field]])
+                  [[id-label port-label] [id-field port-field] [write-button rescan-button]]
+                  [[id-label id-field write-button] [port-label port-field rescan-button]])
     (show frame)))
 
 (defn -main [& args]

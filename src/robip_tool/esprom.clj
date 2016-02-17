@@ -41,6 +41,9 @@
     {:port port
      :chan (async/chan)}))
 
+(defn close [esprom]
+  (serial/close! (:port esprom)))
+
 (defn- raw-port [esprom]
   (-> esprom :port :raw-port))
 
