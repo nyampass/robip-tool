@@ -1,0 +1,44 @@
+<launch4jConfig>
+  <headerType>gui</headerType>
+  <outfile>robip-tool.exe</outfile>
+  <jar>../target/robip-tool-0.8-SNAPSHOT-standalone.jar</jar>
+  <dontWrapJar>false</dontWrapJar>
+  <errTitle>Robip tool</errTitle>
+  <downloadUrl>http://robip.halake.com</downloadUrl>
+  <supportUrl>http://robip.halake.com</supportUrl>
+  <cmdLine>text</cmdLine>
+  <chdir>path</chdir>
+  <priority>normal</priority>
+  <stayAlive>true</stayAlive>
+  <restartOnCrash>true</restartOnCrash>
+  <!-- <icon>file</icon> -->
+  <singleInstance>
+    <mutexName>text</mutexName>
+    <windowTitle>text</windowTitle>
+  </singleInstance> 
+  <jre>
+    <minVersion>1.7.0</minVersion>
+    <jdkPreference>preferJre</jdkPreference>
+    <runtimeBits>64/32</runtimeBits>
+  </jre>
+  <versionInfo>
+    <fileVersion>1.0.0.0</fileVersion>
+    <txtFileVersion>1.0</txtFileVersion>
+    <fileDescription>text</fileDescription>
+    <copyright>Nympass Corporation</copyright>
+    <productVersion>1.0.0.0</productVersion>
+    <txtProductVersion>1.0</txtProductVersion>
+    <productName>Robip tool</productName>
+    <companyName>Nyampas Coporation</companyName>
+    <internalName>robip-tool</internalName>
+    <originalFilename>robip-tool.exe</originalFilename>
+  </versionInfo>
+  <messages>
+    <startupErr>text</startupErr>
+    <bundledJreErr>text</bundledJreErr>
+    <jreVersionErr>text</jreVersionErr>
+    <launcherErr>text</launcherErr>
+    <!-- Used by console header only. -->
+    <instanceAlreadyExistsMsg>text</instanceAlreadyExistsMsg>
+  </messages>
+</launch4jConfig>

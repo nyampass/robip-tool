@@ -1,6 +1,6 @@
-(defproject robip-tool "0.8-SNAPSHOT"
-  :description "FIXME: write description"
-  :url "http://example.com/FIXME"
+(defproject robip-tool "0.9"
+  :description "Robip tool for HaLake Board(inside ESP8266)"
+  :url "http://robip.halake.com/"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.7.0"]
@@ -12,8 +12,10 @@
                  [me.raynes/fs "1.4.6"]
                  [clj-http "2.0.1"]]
   :aot :all
-  :main robip-tool.gui
-  :repl-options {:init-ns robip-tool.core})
+  :main robip-tool.core
+  :repl-options {:init-ns robip-tool.core}
+  :uberjar-name "robip-tool.jar"
+  :launch4j-config-file "resources/launch4j-config.xml")
 
 
 

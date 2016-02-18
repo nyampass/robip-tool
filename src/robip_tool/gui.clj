@@ -1,7 +1,10 @@
 (ns robip-tool.gui
   (:require [robip-tool.esprom :as esprom]
             [robip-tool.api :as api]
-            [robip-tool.config :as config])
+            [robip-tool.config :as config]
+            [clojure.java.shell :refer [sh]]
+            [clojure.java.io :as io]
+            [me.raynes.fs :as fs])
   (:import [javax.swing JFrame JPanel JTextField JButton JLabel JList JScrollPane
             GroupLayout GroupLayout$Alignment JTextArea JProgressBar JDialog
             JOptionPane BorderFactory
@@ -70,19 +73,41 @@
        (run [_] (run)))
      (catch Throwable e
        (prn :error e)))))
- 
+
+
+(defn direct-write! [port file]
+  (let [esp (esprom/esprom port)]
+    (Thread/sleep 0.2)
+    (esprom/connect esp)
+    (esprom/write-flash esp [[0 (.getAbsolutePath file)]])
+    (esprom/close esp)))
+
+(defn serve-resource [path]
+  (.getResourceAsStream (clojure.lang.RT/baseLoader) path))
+
+(defn esptool []
+  (let [esptool (fs/file (fs/tmpdir) "esptool")]
+    (io/copy (serve-resource "esptool")
+             esptool)
+    (fs/chmod "+x" (.getPath esptool))
+    esptool))
+
+(defn write-by-process! [port file]
+  (let [params [(.getPath (esptool))
+                "-cd" "nodemcu" "-cb" "115200" "-cp" (str "/dev/" port)
+                "-ca" "0x00000" "-cf" (.getAbsolutePath file)]]
+    (prn params)
+    (= (:exit (apply sh params)))))
+
 (defn write! [id port frame publish]
   (prn :write! :id id :port port)
   (try
     (publish 0 "サーバからバイナリファイルの取得中...")
-    (let [esp (esprom/esprom port)
-          file (api/fetch-binary id)]
+    (let [file (api/fetch-binary id)]
       (publish 10 "書き込み中...")
-      (Thread/sleep 0.2)
-      (esprom/connect esp)
-      (esprom/write-flash esp [[0 (.getAbsolutePath file)]])
-      (esprom/close esp)
-      (message frame "書き込みに成功しました!"))
+      ; (direct-write! port file)
+      (if (write-by-process! port file)
+        (message frame "書き込みに成功しました!")))
     (catch Throwable e
       (prn :write! :error e)
       (message frame "書き込みに失敗しました"))))
@@ -155,21 +180,13 @@
      :rescan-button rescan-button
      :write-button write-button}))
 
-(defn start []
-  (let [frame (frame)
-        {:keys [id-label id-field
-                port-label port-field
+(defn run []
+  (swing-invoke
+   #(let [frame (frame)
+          {:keys [id-label id-field
+                  port-label port-field
                 rescan-button write-button]} (parts frame)]
-    (group-layout frame
-                  [[id-label port-label] [id-field port-field] [write-button rescan-button]]
-                  [[id-label id-field write-button] [port-label port-field rescan-button]])
-    (show frame)))
-
-(defn -main [& args]
-  (prn :-main)
-  (SwingUtilities/invokeLater (reify Runnable
-                                (run [_]
-                                  (start)))))
-
-;; (-main)
-;; (write! "test7test7" "hoge")
+      (group-layout frame
+                    [[id-label port-label] [id-field port-field] [write-button rescan-button]]
+                    [[id-label id-field write-button] [port-label port-field rescan-button]])
+      (show frame))))
