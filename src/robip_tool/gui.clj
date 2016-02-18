@@ -97,7 +97,9 @@
                 "-cd" "nodemcu" "-cb" "115200" "-cp" (str "/dev/" port)
                 "-ca" "0x00000" "-cf" (.getAbsolutePath file)]]
     (prn params)
-    (= (:exit (apply sh params)))))
+    (let [result (apply sh params)]
+      (prn :result result)
+      (= (:exit result))))
 
 (defn write! [id port frame publish]
   (prn :write! :id id :port port)
